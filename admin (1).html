@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LogeAchi Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #F6F5FB; min-height: 100vh; font-family: 'Inter', sans-serif; }
+  #root { min-height: 100vh; }
+
+  #loading-screen {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    background: #1B1E3D; color: #fff; text-align: center; padding: 24px;
+  }
+  .la-mark {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 4px solid rgba(245,166,35,0.25);
+    border-top-color: #F5A623;
+    animation: la-spin 0.85s linear infinite;
+  }
+  @keyframes la-spin { to { transform: rotate(360deg); } }
+  .la-word {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px;
+    letter-spacing: -0.02em; display: flex; align-items: center; gap: 4px;
+  }
+  .la-dot { width: 6px; height: 6px; border-radius: 50%; background: #F5A623; }
+  #loading-sub { font-size: 13px; color: rgba(255,255,255,0.65); min-height: 18px; }
+  #loading-sub button {
+    margin-top: 10px; background: #F5A623; color: #1B1E3D; border: none;
+    border-radius: 999px; padding: 8px 20px; font-weight: 700; font-size: 13px;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  @media (prefers-reduced-motion: reduce) { .la-mark { animation-duration: 2.5s; } }
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="loading-screen">
+    <div class="la-mark"></div>
+    <div class="la-word">LogeAchi<span class="la-dot"></span></div>
+    <div id="loading-sub">লোড হচ্ছে...</div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0?external=react",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.383.0?external=react",
+    "recharts": "https://esm.sh/recharts@2.12.7?external=react,react-dom"
+  }
+}
+</script>
+
+<script type="module">
+  const subEl = () => document.getElementById("loading-sub");
+  let settled = false;
+
+  const slowTimer = setTimeout(() => {
+    if (settled) return;
+    const el = subEl();
+    if (el) {
+      el.innerHTML = 'লোড হতে বেশি সময় লাগছে। ইন্টারনেট সংযোগ চেক করো।<br><button onclick="location.reload()">আবার চেষ্টা করো</button>';
+    }
+  }, 9000);
+
+  try {
+    const [{ default: App }, React, { createRoot }] = await Promise.all([
+      import("./admin.js"),
+      import("react"),
+      import("react-dom/client"),
+    ]);
+    settled = true;
+    clearTimeout(slowTimer);
+    document.getElementById("root").innerHTML = "";
+    createRoot(document.getElementById("root")).render(React.createElement(App));
+  } catch (err) {
+    settled = true;
+    clearTimeout(slowTimer);
+    console.error(err);
+    const el = subEl();
+    if (el) {
+      el.innerHTML = 'লোড করতে সমস্যা হয়েছে। ইন্টারনেট চেক করে আবার চেষ্টা করো।<br><button onclick="location.reload()">আবার চেষ্টা করো</button>';
+    }
+  }
+</script>
+</body>
+</html>
